@@ -1361,18 +1361,119 @@ function renderSources() {
 }
 
 /* ===== 텍스트 레퍼런스 ===== */
+const REFS_KEY = 'childrensbook_refs';
+
+function loadRefOverrides() {
+  try { return JSON.parse(localStorage.getItem(REFS_KEY)) || { deleted: [], edited: {}, added: [] }; }
+  catch { return { deleted: [], edited: {}, added: [] }; }
+}
+
+function saveRefOverrides(ov) {
+  localStorage.setItem(REFS_KEY, JSON.stringify(ov));
+}
+
+function getEffectiveRefs() {
+  const ov = loadRefOverrides();
+  const deletedSet = new Set(ov.deleted);
+  const base = REFERENCES
+    .map((r, i) => ({ ...r, id: 'r_' + i }))
+    .filter(r => !deletedSet.has(r.id))
+    .map(r => ov.edited[r.id] ? { ...r, ...ov.edited[r.id] } : r);
+  return [...ov.added, ...base];
+}
+
+let currentRefTag = '기타';
+
+// 태그 버튼
+document.querySelectorAll('.ref-tag-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentRefTag = btn.dataset.tag;
+    document.querySelectorAll('.ref-tag-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  });
+});
+document.querySelector('.ref-tag-btn[data-tag="기타"]').classList.add('selected');
+
+// 저장
+document.getElementById('ref-btn-save').addEventListener('click', () => {
+  const title = document.getElementById('ref-title-input').value.trim();
+  const subtitle = document.getElementById('ref-subtitle-input').value.trim();
+  const text = document.getElementById('ref-text-input').value.trim();
+  if (!title) { alert('제목을 입력해주세요.'); return; }
+
+  const ov = loadRefOverrides();
+  const editId = document.getElementById('ref-edit-id').value;
+
+  if (editId) {
+    const data = { title, subtitle, text, tag: currentRefTag };
+    if (editId.startsWith('r_')) {
+      ov.edited[editId] = data;
+    } else {
+      const idx = ov.added.findIndex(r => r.id === editId);
+      if (idx >= 0) ov.added[idx] = { ...ov.added[idx], ...data };
+    }
+  } else {
+    ov.added.unshift({ id: 'ra_' + Date.now(), title, subtitle, text, tag: currentRefTag });
+  }
+
+  saveRefOverrides(ov);
+  resetRefForm();
+  renderReferences();
+});
+
+// 취소
+document.getElementById('ref-btn-cancel').addEventListener('click', resetRefForm);
+
+function resetRefForm() {
+  document.getElementById('ref-title-input').value = '';
+  document.getElementById('ref-subtitle-input').value = '';
+  document.getElementById('ref-text-input').value = '';
+  document.getElementById('ref-edit-id').value = '';
+  currentRefTag = '기타';
+  document.querySelectorAll('.ref-tag-btn').forEach(b => b.classList.toggle('selected', b.dataset.tag === '기타'));
+  document.getElementById('ref-btn-cancel').classList.add('hidden');
+}
+
+function editRef(id) {
+  const all = getEffectiveRefs();
+  const r = all.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('ref-title-input').value = r.title;
+  document.getElementById('ref-subtitle-input').value = r.subtitle || '';
+  document.getElementById('ref-text-input').value = r.text;
+  document.getElementById('ref-edit-id').value = id;
+  currentRefTag = r.tag || '기타';
+  document.querySelectorAll('.ref-tag-btn').forEach(b => b.classList.toggle('selected', b.dataset.tag === currentRefTag));
+  document.getElementById('ref-btn-cancel').classList.remove('hidden');
+  document.getElementById('ref-form').scrollIntoView({ behavior: 'smooth' });
+}
+
+function deleteRef(id) {
+  if (!confirm('이 레퍼런스를 삭제할까요?')) return;
+  const ov = loadRefOverrides();
+  if (id.startsWith('r_')) {
+    ov.deleted.push(id);
+  } else {
+    ov.added = ov.added.filter(r => r.id !== id);
+  }
+  saveRefOverrides(ov);
+  renderReferences();
+}
+
 function renderReferences() {
   const list = document.getElementById('references-list');
   const tagColors = { '시간': 'tag-시간', '직업': 'tag-직업', '과학': 'tag-과학', '역사': 'tag-역사', '기타': 'tag-기타' };
 
-  list.innerHTML = REFERENCES.map(ref => `
-    <div class="ref-card" id="${ref.id}">
+  const refs = getEffectiveRefs();
+
+  list.innerHTML = refs.map(ref => `
+    <div class="ref-card" id="${escAttr(ref.id)}">
       <div class="ref-header">
         <div class="ref-header-left">
           <span class="ref-tag ${tagColors[ref.tag] || 'tag-기타'}">${escHtml(ref.tag)}</span>
           <div>
             <div class="ref-title">${escHtml(ref.title)}</div>
-            <div class="ref-subtitle">${escHtml(ref.subtitle)}</div>
+            <div class="ref-subtitle">${escHtml(ref.subtitle || '')}</div>
           </div>
         </div>
         <span class="ref-toggle">▾</span>
@@ -1381,6 +1482,8 @@ function renderReferences() {
         <div class="ref-text">${escHtml(ref.text)}</div>
         <div class="ref-actions">
           <button class="btn-use-ref" data-tag="${escAttr(ref.tag)}">이 레퍼런스로 아이디어 만들기</button>
+          <button class="btn-edit ref-edit-btn" data-id="${escAttr(ref.id)}">수정</button>
+          <button class="btn-delete ref-delete-btn" data-id="${escAttr(ref.id)}">삭제</button>
         </div>
       </div>
     </div>
@@ -1395,8 +1498,21 @@ function renderReferences() {
   list.querySelectorAll('.btn-use-ref').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      const tag = btn.dataset.tag;
-      switchToIdeasTab('', tag);
+      switchToIdeasTab('', btn.dataset.tag);
+    });
+  });
+
+  list.querySelectorAll('.ref-edit-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      editRef(btn.dataset.id);
+    });
+  });
+
+  list.querySelectorAll('.ref-delete-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteRef(btn.dataset.id);
     });
   });
 }

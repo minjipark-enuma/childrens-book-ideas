@@ -77,6 +77,35 @@
           <h3>📖 텍스트 레퍼런스</h3>
           <p class="section-desc">수집한 어린이책 원고입니다. 문체·구성·소재를 참고하세요.</p>
         </div>
+
+        <!-- 레퍼런스 추가 폼 -->
+        <div class="idea-form card" id="ref-form">
+          <input type="hidden" id="ref-edit-id" value="" />
+          <div class="form-row">
+            <input type="text" id="ref-title-input" placeholder="레퍼런스 제목 (예: 시간여행 소녀)" class="input-title" maxlength="40" />
+          </div>
+          <div class="form-row">
+            <input type="text" id="ref-subtitle-input" placeholder="부제 / 출처 (예: 창비, 2023)" style="font-size:0.9rem; padding:8px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; width:100%; box-sizing:border-box;" />
+          </div>
+          <div class="form-row">
+            <textarea id="ref-text-input" placeholder="본문 내용을 붙여넣으세요..." rows="6"></textarea>
+          </div>
+          <div class="form-row form-bottom">
+            <div class="tag-selector">
+              <span class="label">태그:</span>
+              <button class="ref-tag-btn" data-tag="시간">⏰ 시간</button>
+              <button class="ref-tag-btn" data-tag="직업">🔧 직업</button>
+              <button class="ref-tag-btn" data-tag="과학">🔬 과학</button>
+              <button class="ref-tag-btn" data-tag="역사">🏛️ 역사</button>
+              <button class="ref-tag-btn" data-tag="기타">📌 기타</button>
+            </div>
+            <div class="form-actions">
+              <button class="btn-cancel hidden" id="ref-btn-cancel">취소</button>
+              <button class="btn-save" id="ref-btn-save">저장</button>
+            </div>
+          </div>
+        </div>
+
         <div class="references-list" id="references-list">
           <!-- JS로 채워짐 -->
         </div>
