@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📚 어린이책 아이디어창고</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header>
+    <div class="header-inner">
+      <h1>📚 어린이책 아이디어창고</h1>
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="sources">💡 소재 키워드</button>
+        <button class="tab-btn" data-tab="ideas">✏️ 아이디어 노트</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===== 탭 1: 소재 키워드 ===== -->
+    <section id="tab-sources" class="tab-section active">
+      <div class="section-top">
+        <h2>💡 소재 키워드</h2>
+        <p class="section-desc">이미지에서 추출한 아이디어 소재와 텍스트 레퍼런스를 함께 탐색하세요.</p>
+      </div>
+
+      <!-- 소재 추가 폼 -->
+      <div class="idea-form card" id="source-form">
+        <input type="hidden" id="source-edit-id" value="" />
+        <div class="form-row">
+          <input type="text" id="source-keyword-input" placeholder="소재 키워드 (예: 색깔 변하는 동물)" class="input-title" maxlength="20" />
+        </div>
+        <div class="form-row">
+          <textarea id="source-desc-input" placeholder="이 소재로 어떤 어린이책을 쓸 수 있는지 설명해보세요..." rows="3"></textarea>
+        </div>
+        <div class="form-row form-bottom">
+          <div class="tag-selector">
+            <span class="label">카테고리:</span>
+            <button class="source-cat-btn" data-cat="과학">🔬 과학</button>
+            <button class="source-cat-btn" data-cat="기타">📚 기타</button>
+            <button class="source-cat-btn" data-cat="역사">🏛️ 역사</button>
+          </div>
+          <div class="form-actions">
+            <button class="btn-cancel hidden" id="source-btn-cancel">취소</button>
+            <button class="btn-save" id="source-btn-save">저장</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 검색 + 필터 -->
+      <div class="filter-bar">
+        <input type="text" id="source-search" placeholder="🔍 키워드 검색..." class="search-input" />
+        <button class="filter-btn active" data-source-filter="전체">전체</button>
+        <button class="filter-btn" data-source-filter="과학">🔬 과학</button>
+        <button class="filter-btn" data-source-filter="기타">📚 기타</button>
+        <button class="filter-btn" data-source-filter="역사">🏛️ 역사</button>
+      </div>
+
+      <!-- 소재 카드 -->
+      <div class="sources-grid" id="sources-grid">
+        <!-- JS로 채워짐 -->
+      </div>
+      <div class="empty-state hidden" id="sources-empty">
+        <p>🔍 검색 결과가 없어요.</p>
+      </div>
+
+      <!-- 텍스트 레퍼런스 -->
+      <div class="references-section" id="references-section">
+        <div class="section-divider">
+          <h3>📖 텍스트 레퍼런스</h3>
+          <p class="section-desc">수집한 어린이책 원고입니다. 문체·구성·소재를 참고하세요.</p>
+        </div>
+        <div class="references-list" id="references-list">
+          <!-- JS로 채워짐 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 탭 2: 아이디어 노트 ===== -->
+    <section id="tab-ideas" class="tab-section">
+      <div class="section-top">
+        <h2>✏️ 아이디어 노트</h2>
+        <p class="section-desc">떠오르는 이야기 아이디어를 빠르게 메모하세요.</p>
+      </div>
+
+      <!-- 입력 폼 -->
+      <div class="idea-form card" id="idea-form">
+        <input type="hidden" id="edit-id" value="" />
+        <div class="form-row">
+          <input type="text" id="idea-title" placeholder="아이디어 제목" class="input-title" maxlength="60" />
+        </div>
+        <div class="form-row">
+          <textarea id="idea-content" placeholder="아이디어 내용을 자유롭게 적어보세요..." rows="4"></textarea>
+        </div>
+        <div class="form-row form-bottom">
+          <div class="tag-selector">
+            <span class="label">태그:</span>
+            <button class="tag-btn" data-tag="시간">⏰ 시간</button>
+            <button class="tag-btn" data-tag="직업">🔧 직업</button>
+            <button class="tag-btn" data-tag="과학">🔬 과학</button>
+            <button class="tag-btn" data-tag="역사">🏛️ 역사</button>
+            <button class="tag-btn" data-tag="기타">📌 기타</button>
+          </div>
+          <div class="form-actions">
+            <button class="btn-cancel hidden" id="btn-cancel">취소</button>
+            <button class="btn-save" id="btn-save">저장</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 필터 -->
+      <div class="filter-bar">
+        <span class="label">필터:</span>
+        <button class="filter-btn active" data-filter="전체">전체</button>
+        <button class="filter-btn" data-filter="시간">⏰ 시간</button>
+        <button class="filter-btn" data-filter="직업">🔧 직업</button>
+        <button class="filter-btn" data-filter="과학">🔬 과학</button>
+        <button class="filter-btn" data-filter="역사">🏛️ 역사</button>
+        <button class="filter-btn" data-filter="기타">📌 기타</button>
+      </div>
+
+      <!-- 아이디어 카드 목록 -->
+      <div class="ideas-grid" id="ideas-grid">
+        <!-- JS로 채워짐 -->
+      </div>
+      <div class="empty-state hidden" id="ideas-empty">
+        <p>💭 아직 저장된 아이디어가 없어요.<br>위 폼에 첫 번째 아이디어를 입력해보세요!</p>
+      </div>
+    </section>
+
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
